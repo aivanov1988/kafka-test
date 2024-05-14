@@ -4,6 +4,7 @@ import {
   Kafka,
   KafkaJSConnectionError,
   KafkaJSError,
+  KafkaJSProtocolError,
   KafkaMessage,
 } from 'kafkajs';
 import fromKafkaTopic from '../../common/third.party/rxjs-kafka';
@@ -46,9 +47,11 @@ export class KafkaConsumer {
     } catch (error) {
       if (
         error instanceof KafkaJSError ||
-        error instanceof KafkaJSConnectionError
+        error instanceof KafkaJSConnectionError ||
+        error instanceof KafkaJSProtocolError
       ) {
-        this.consumer = null;
+        await this.disconnect();
+        return;
       }
     }
   }
@@ -58,17 +61,38 @@ export class KafkaConsumer {
     group: string,
     processFunc: (data: KafkaMessage) => void,
   ) {
+    if (this.consumer === null)
+      try {
+        await this.connect(group);
+        await this.consumer?.subscribe({
+          topics: [topic],
+          fromBeginning: true,
+        });
+        await this.consumer?.run({
+          autoCommit: false,
+          eachMessage: ({ message }) =>
+            new Promise((resolve) => {
+              processFunc(message);
+              resolve();
+            }),
+        });
+      } catch (error) {
+        if (
+          error instanceof KafkaJSError ||
+          error instanceof KafkaJSConnectionError ||
+          error instanceof KafkaJSProtocolError
+        ) {
+          await this.disconnect();
+          return;
+        }
+      }
+  }
+
+  async disconnect() {
     if (this.consumer === null) {
-      await this.connect(group);
-      await this.consumer?.subscribe({ topics: [topic], fromBeginning: true });
-      await this.consumer?.run({
-        autoCommit: false,
-        eachMessage: ({ message }) =>
-          new Promise((resolve) => {
-            processFunc(message);
-            resolve();
-          }),
-      });
+      return;
     }
+    await this.consumer.disconnect();
+    this.consumer = null;
   }
 }
