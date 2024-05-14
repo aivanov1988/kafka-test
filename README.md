@@ -31,4 +31,4 @@ GET http://localhost:3000/home/pagination?skip=600&take=10 - пагинация 
 
 GET http://localhost:3000/home/bydate?startFrom=1715584150000&endTo=1715602150000 - поиск по промежутку времени
 
-GET 'http://localhost:3000/home/bydate?startFrom=1715584150000&take=30 - забрать несколько сообщений от точки во времени
+GET http://localhost:3000/home/bydate?startFrom=1715584150000&take=30 - забрать несколько сообщений от точки во времени
