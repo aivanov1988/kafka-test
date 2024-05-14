@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Kafka, KafkaJSConnectionError, KafkaJSError, Producer } from 'kafkajs';
+import {
+  Kafka,
+  KafkaJSConnectionError,
+  KafkaJSError,
+  KafkaJSProtocolError,
+  Producer,
+} from 'kafkajs';
 
 @Injectable()
 export class KafkaProducer {
@@ -22,9 +28,11 @@ export class KafkaProducer {
     } catch (error) {
       if (
         error instanceof KafkaJSError ||
-        error instanceof KafkaJSConnectionError
+        error instanceof KafkaJSConnectionError ||
+        error instanceof KafkaJSProtocolError
       ) {
-        this.producer = null;
+        await this.disconnect();
+        return;
       }
     }
   }
@@ -41,8 +49,10 @@ export class KafkaProducer {
     } catch (error) {
       if (
         error instanceof KafkaJSError ||
-        error instanceof KafkaJSConnectionError
+        error instanceof KafkaJSConnectionError ||
+        error instanceof KafkaJSProtocolError
       ) {
+        await this.disconnect();
         return;
       }
     }
