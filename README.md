@@ -24,7 +24,11 @@
 также реализован ряд эндпоинтов
 
 GET http://localhost:3000/home/count - получить общее кол-во сообщений в топике
+
 GET http://localhost:3000/home/452 - получить сообщение по его оффсету
+
 GET http://localhost:3000/home/pagination?skip=600&take=10 - пагинация по оффсетам
+
 GET http://localhost:3000/home/bydate?startFrom=1715584150000&endTo=1715602150000 - поиск по промежутку времени
+
 GET 'http://localhost:3000/home/bydate?startFrom=1715584150000&take=30 - забрать несколько сообщений от точки во времени
