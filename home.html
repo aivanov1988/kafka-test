@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Kafka SSE frontend</title>
+<script language="javascript" type="text/javascript">
+  var sseUri = 'http://localhost:3000/home';
+  var output;
+
+  function init() {
+    output = document.getElementById('output');
+    connectSSE();
+  }
+
+  function connectSSE() {
+    const eventSource = new EventSource(sseUri);
+    eventSource.onmessage = ({ data }) => {
+      writeToScreen(data);
+    };
+  }
+
+  function writeToScreen(message) {
+    var pre = document.createElement('p');
+    pre.style.wordWrap = 'break-word';
+    pre.innerHTML = message;
+    output.prepend(pre);
+  }
+
+  window.addEventListener('load', init, false);
+</script>
+
+<h2>Kafka SSE frontend</h2>
+
+<div id="output"></div>
